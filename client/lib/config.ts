@@ -3,8 +3,8 @@ import { Inbox, CalendarClock, CalendarDays, Tag } from 'lucide-react';
 export const config = {
   metadata: {
     title: {
-      default: 'Taskify',
-      template: `%s | Taskify`,
+      default: 'TasqiAI',
+      template: `%s | TasqiAI`,
     },
     description:
       'Collaborate, manage projects, and reach new productivity peaks',
