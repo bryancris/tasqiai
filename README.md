@@ -1,4 +1,4 @@
-![image](https://github.com/mariangle/.taskify/assets/124585244/d4130585-5ea5-4f34-bfaf-ea8daf5cc7a0)
+![image](https://github.com/https://github.com/bryancris/tasqiai)
 
 <p align="center">
   <a href="https://dottaskify.vercel.app/" target="_blank"></a>
@@ -11,8 +11,8 @@
 </p>
 
 <p align="center">
-  <a href="https://www.linkedin.com/in/maria-nguyen-le">
-    <img src="https://img.shields.io/badge/-MariaLe-blue?style=plastic-square&logo=Linkedin&logoColor=white&link=https://www.linkedin.com/in/maria-nguyen-le/" alt="LinkedIn" />
+  <a href="https://www.linkedin.com">
+    <img src="https://img.shields.io/badge/-Bryan-blue?style=plastic-square&logo=Linkedin&logoColor=white&link=https://www.linkedin.com/in/maria-nguyen-le/" alt="LinkedIn" />
   </a>
 </p>
 <br/>
