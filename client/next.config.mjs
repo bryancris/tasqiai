@@ -12,9 +12,6 @@ const withMDX = nextMDX({
 const nextConfig = {
   pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
   output: 'standalone',
-  serverRuntimeConfig: {
-    hostname: '0.0.0.0',
-  },
   experimental: {
     mdxRs: true,
   },
