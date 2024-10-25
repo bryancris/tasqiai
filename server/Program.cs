@@ -36,8 +36,8 @@ namespace server
                     {
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8
-                            .GetBytes(builder.Configuration.GetSection("AppSettings:Token").Value)),
-                        ValidateIssuer = false,
+                            .GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET") ?? 
+                            builder.Configuration.GetSection("AppSettings:Token").Value)),                        ValidateIssuer = false,
                         ValidateAudience = false
                     };
                 });
@@ -61,11 +61,13 @@ namespace server
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy",
-                    builder => builder
-                        .WithOrigins("https://dottaskify.vercel.app")
-                        .AllowAnyMethod()
-                        .AllowAnyHeader()
-                        .AllowCredentials());
+                    builder =>
+                    {
+                        builder.SetIsOriginAllowed(_ => true)
+                            .AllowAnyMethod()
+                            .AllowAnyHeader()
+                            .AllowCredentials();
+                    });
             });
 
             var app = builder.Build();

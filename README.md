@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://dottaskify.vercel.app/" target="_blank"></a>
-    <h1 align="center">Taskify</h1>
+    <h1 align="center">TasqiAI</h1>
   </a>
 </p>
 
