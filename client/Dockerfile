@@ -25,15 +25,19 @@ WORKDIR /app
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy necessary files
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-
 # Set environment variables
 ENV NODE_ENV=production
 ENV PORT=3000
-ENV HOSTNAME=0.0.0.0
+ENV HOST=0.0.0.0
+
+# Copy necessary files from builder
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma/client ./node_modules/@prisma/client
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 
 # Switch to non-root user
 USER nextjs
@@ -41,5 +45,5 @@ USER nextjs
 # Expose port
 EXPOSE 3000
 
-# Start the application
-CMD ["node", "server.js"]
+# Start the application with explicit host binding
+CMD ["sh", "-c", "node server.js --hostname 0.0.0.0"]
