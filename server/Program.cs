@@ -17,8 +17,8 @@ namespace server
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            var connectionString = builder.Configuration.GetConnectionString("DefaltConnection");
-            builder.Services.AddDbContext<ApplicationContext>(x => x.UseSqlServer(connectionString));
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            builder.Services.AddDbContext<ApplicationContext>(x => x.UseNpgsql(connectionString));
 
             // Add services to the container.
 
@@ -61,12 +61,18 @@ namespace server
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy",
-                    builder => builder
-                        .WithOrigins("https://dottaskify.vercel.app")
-                        .AllowAnyMethod()
-                        .AllowAnyHeader()
-                        .AllowCredentials());
+                    policy =>
+                    {
+                        policy.WithOrigins("https://tasqiai.vercel.app", "http://localhost:3000")
+                              .AllowAnyMethod()
+                              .AllowAnyHeader()
+                              .AllowCredentials()
+                              .WithExposedHeaders("WWW-Authenticate", "Authorization");
+                    }
+                );
             });
+
+            builder.Services.AddHttpClient();
 
             var app = builder.Build();
 
@@ -84,10 +90,12 @@ namespace server
                 app.UseSwaggerUI();
             }
 
+            app.UseCors("CorsPolicy");
+            app.UseExceptionHandler("/error");
             app.UseHttpsRedirection();
+            app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseCors("CorsPolicy");
             app.MapControllers();
 
             app.Run();
