@@ -1,7 +1,7 @@
 ![image](https://github.com/mariangle/.taskify/assets/124585244/d4130585-5ea5-4f34-bfaf-ea8daf5cc7a0)
 
 <p align="center">
-  <a href="https://dottaskify.vercel.app/" target="_blank"></a>
+  <a href="https://tasqiai.vercel.app/" target="_blank"></a>
     <h1 align="center">Taskify</h1>
   </a>
 </p>
