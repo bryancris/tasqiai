@@ -58,39 +58,35 @@ function AuthForm({ variant }: AuthFormProps) {
   const onSubmit: SubmitHandler<AuthSchemaType> = async (
     data: AuthSchemaType,
   ) => {
+    if (isLoading) return;
     try {
+      setIsLoading(true);
       if (variant === 'login') {
         const { email, password } = data as LoginFormValues;
-        await signIn('credentials', {
+        const result = await signIn('credentials', {
           email,
           password,
-          callbackUrl: DEFAULT_LOGIN_REDIRECT,
+          redirect: false,
         });
+        if (result?.error) {
+          throw new Error(result.error);
+        }
+        window.location.href = DEFAULT_LOGIN_REDIRECT;
       } else if (variant === 'register') {
         const { email, name, password } = data as RegisterFormValues;
-        setIsLoading(true);
-        try {
-          await registerUser({ email, name, password })
-            .then(async () => {
-              const result = await signIn('credentials', {
-                email, password, redirect: false
-              });
-              if (result?.ok) window.location.href = DEFAULT_LOGIN_REDIRECT;
-            });
-        } catch (error) {
-          const message = error instanceof Error ? error.message : 'Registration failed. Please try again.';
-          toast.error(message);
+        await registerUser({ email, name, password });
+        const result = await signIn('credentials', {
+          email,
+          password,
+          redirect: false,
+        });
+        if (result?.error) {
+          throw new Error(result.error);
         }
+        window.location.href = DEFAULT_LOGIN_REDIRECT;
       }
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        toast.error(err.response?.data);
-      } else if (err instanceof Error) {
-        toast.error(err.message);
-      } else if (err) {
-        toast.error('Something went wrong.');
-      }
-    } finally {
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Something went wrong.');
       setIsLoading(false);
     }
   };
