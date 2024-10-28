@@ -89,11 +89,11 @@ namespace server
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
+            
             app.UseCors("CorsPolicy");
+            app.UseRouting();
             app.UseExceptionHandler("/error");
             app.UseHttpsRedirection();
-            app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
