@@ -59,8 +59,6 @@ function AuthForm({ variant }: AuthFormProps) {
     data: AuthSchemaType,
   ) => {
     try {
-      setIsLoading(true);
-
       if (variant === 'login') {
         const { email, password } = data as LoginFormValues;
         await signIn('credentials', {
@@ -70,19 +68,28 @@ function AuthForm({ variant }: AuthFormProps) {
         });
       } else if (variant === 'register') {
         const { email, name, password } = data as RegisterFormValues;
-        await registerUser({ email, name, password });
-        toast.success('Successfully registered. You can now log in.');
+        setIsLoading(true);
+        try {
+          await registerUser({ email, name, password })
+            .then(async () => {
+              const result = await signIn('credentials', {
+                email, password, redirect: false
+              });
+              if (result?.ok) window.location.href = DEFAULT_LOGIN_REDIRECT;
+            });
+        } catch (error) {
+          const message = error instanceof Error ? error.message : 'Registration failed. Please try again.';
+          toast.error(message);
+        }
       }
     } catch (err) {
       if (err instanceof AxiosError) {
         toast.error(err.response?.data);
       } else if (err instanceof Error) {
         toast.error(err.message);
-      } else {
-        toast.error('Oops. Something went wrong.');
+      } else if (err) {
+        toast.error('Something went wrong.');
       }
-      // eslint-disable-next-line no-console
-      console.log(err);
     } finally {
       setIsLoading(false);
     }
@@ -90,7 +97,7 @@ function AuthForm({ variant }: AuthFormProps) {
 
   return (
     <Form {...form}>
-      <form className="space-y-4 max-w-sm w-full mx-auto">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-w-sm w-full mx-auto">
         <FormField
           control={form.control}
           name="email"
@@ -152,9 +159,8 @@ function AuthForm({ variant }: AuthFormProps) {
           type="submit"
           className="w-full"
           loading={isLoading}
-          disabled={isLoading || variant === 'register'}
+          disabled={isLoading}
           variant="default"
-          onClick={form.handleSubmit(onSubmit)}
         >
           {variant === 'login' ? 'Login' : 'Register'}
         </Button>
