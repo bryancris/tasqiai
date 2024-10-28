@@ -58,32 +58,25 @@ function AuthForm({ variant }: AuthFormProps) {
   const onSubmit: SubmitHandler<AuthSchemaType> = async (
     data: AuthSchemaType,
   ) => {
-    if (isLoading) return;
     try {
       setIsLoading(true);
       if (variant === 'login') {
         const { email, password } = data as LoginFormValues;
-        const result = await signIn('credentials', {
+        await signIn('credentials', {
           email,
           password,
-          redirect: false,
+          redirect: true,
+          callbackUrl: DEFAULT_LOGIN_REDIRECT,
         });
-        if (result?.error) {
-          throw new Error(result.error);
-        }
-        window.location.href = DEFAULT_LOGIN_REDIRECT;
       } else if (variant === 'register') {
         const { email, name, password } = data as RegisterFormValues;
         await registerUser({ email, name, password });
-        const result = await signIn('credentials', {
+        await signIn('credentials', {
           email,
           password,
-          redirect: false,
+          redirect: true,
+          callbackUrl: DEFAULT_LOGIN_REDIRECT,
         });
-        if (result?.error) {
-          throw new Error(result.error);
-        }
-        window.location.href = DEFAULT_LOGIN_REDIRECT;
       }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Something went wrong.');
