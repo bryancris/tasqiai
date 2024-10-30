@@ -17,7 +17,12 @@ namespace server
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            // Get connection string from environment variable in Azure or from configuration
+            var connectionString = Environment.GetEnvironmentVariable("POSTGRES_CONNECTION_STRING") 
+                ?? builder.Configuration.GetConnectionString("DefaultConnection");
+            if (string.IsNullOrEmpty(connectionString))
+                throw new InvalidOperationException("PostgreSQL connection string not found.");
+                
             builder.Services.AddDbContext<ApplicationContext>(x => x.UseNpgsql(connectionString));
 
             // Add services to the container.
@@ -36,7 +41,9 @@ namespace server
                     {
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8
-                            .GetBytes(builder.Configuration.GetSection("AppSettings:Token").Value)),
+                            .GetBytes(Environment.GetEnvironmentVariable("AppSettings__Token") ??
+                                builder.Configuration.GetSection("AppSettings:Token").Value ??
+                                throw new InvalidOperationException("JWT Token not found in configuration."))),
                         ValidateIssuer = false,
                         ValidateAudience = false
                     };
@@ -60,16 +67,15 @@ namespace server
             });
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("CorsPolicy",
-                    policy =>
-                    {
-                        policy.WithOrigins("https://tasqiai.vercel.app", "http://localhost:3000")
-                              .AllowAnyMethod()
-                              .AllowAnyHeader()
-                              .AllowCredentials()
-                              .WithExposedHeaders("WWW-Authenticate", "Authorization");
-                    }
-                );
+                options.AddPolicy("CorsPolicy", policy =>
+                {
+                    policy.WithOrigins(
+                        "http://localhost:3000",
+                        "https://tasqiai.vercel.app")
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials();
+                });
             });
 
             builder.Services.AddHttpClient();
@@ -83,17 +89,17 @@ namespace server
                 SeedData.Initialize(services);
             }
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+            // Enable Swagger in all environments for testing
+            app.UseSwagger();
+            app.UseSwaggerUI(c => {
+                c.SwaggerEndpoint("swagger/v1/swagger.json", "Taskify API v1");
+                c.RoutePrefix = "";
+            });
             
-            app.UseCors("CorsPolicy");
-            app.UseRouting();
             app.UseExceptionHandler("/error");
             app.UseHttpsRedirection();
+            app.UseRouting();
+            app.UseCors("CorsPolicy");
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
