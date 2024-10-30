@@ -1,4 +1,34 @@
 import type { NextAuthConfig } from 'next-auth';
+import type { DefaultSession } from 'next-auth';
+import type { Session, User } from 'next-auth';
+
+declare module 'next-auth' {
+  interface Session extends DefaultSession {
+    user: {
+      id: string;
+      email: string | null;
+      name: string | null;
+      image: string | null;
+    } & DefaultSession['user'];
+  }
+
+  interface User {
+    id: string;
+    email: string | null;
+    name: string | null;
+    image: string | null;
+  }
+}
+
+declare module 'next-auth/jwt' {
+  interface JWT {
+    id: string;
+    email: string | null;
+    name: string | null;
+    image: string | null;
+  }
+}
+
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
 
@@ -8,27 +38,32 @@ export default {
   },
   callbacks: {
     async session({ session, token }) {
-      if (token && session.user) {
-        session.user.id = token.sub;
+      if (token) {
+        session.user = {
+          ...session.user,
+          id: token.id,
+          email: token.email,
+          name: token.name,
+          image: token.image
+        };
       }
+
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
-        token.sub = user.id;
+        token.id = user.id;
+        token.email = user.email;
+        token.name = user.name;
+        token.image = user.image;
       }
       return token;
     },
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth;
       const protectedPaths = ['/dashboard'];
-      const isProtectedRoute = protectedPaths.some(path => 
-        nextUrl.pathname.startsWith(path)
-      );
-
-      if (isProtectedRoute && !isLoggedIn) {
-        return false;
-      }
+      const isProtectedRoute = protectedPaths.some(path => nextUrl.pathname.startsWith(path));
+      if (isProtectedRoute && !isLoggedIn) return false;
 
       return true;
     },
