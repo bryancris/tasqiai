@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using server.Context;
 
@@ -11,9 +12,11 @@ using server.Context;
 namespace server.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20231202101035_UsernameToEmail")]
+    partial class UsernameToEmail
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -81,24 +84,30 @@ namespace server.Migrations
                     b.ToTable("Lists");
                 });
 
-            modelBuilder.Entity("server.Models.Project", b =>
+            modelBuilder.Entity("server.Models.Note", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("TaskId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("TaskId");
 
-                    b.ToTable("Projects");
+                    b.ToTable("Note");
                 });
 
             modelBuilder.Entity("server.Models.RecurringTask", b =>
@@ -131,9 +140,6 @@ namespace server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -143,6 +149,9 @@ namespace server.Migrations
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("isCompleted")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
@@ -157,12 +166,6 @@ namespace server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("CompletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime?>("DueDate")
                         .HasColumnType("datetime2");
 
@@ -176,14 +179,8 @@ namespace server.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int?>("Priority")
                         .HasColumnType("int");
-
-                    b.Property<Guid?>("ProjectId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -194,8 +191,6 @@ namespace server.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ListId");
-
-                    b.HasIndex("ProjectId");
 
                     b.HasIndex("UserId");
 
@@ -256,11 +251,11 @@ namespace server.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("server.Models.Project", b =>
+            modelBuilder.Entity("server.Models.Note", b =>
                 {
-                    b.HasOne("server.Models.User", null)
-                        .WithMany("Projects")
-                        .HasForeignKey("UserId")
+                    b.HasOne("server.Models.Task", null)
+                        .WithMany("Notes")
+                        .HasForeignKey("TaskId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -289,10 +284,6 @@ namespace server.Migrations
                         .WithMany("Tasks")
                         .HasForeignKey("ListId");
 
-                    b.HasOne("server.Models.Project", "Project")
-                        .WithMany("Tasks")
-                        .HasForeignKey("ProjectId");
-
                     b.HasOne("server.Models.User", "User")
                         .WithMany("Tasks")
                         .HasForeignKey("UserId")
@@ -300,8 +291,6 @@ namespace server.Migrations
                         .IsRequired();
 
                     b.Navigation("List");
-
-                    b.Navigation("Project");
 
                     b.Navigation("User");
                 });
@@ -311,13 +300,10 @@ namespace server.Migrations
                     b.Navigation("Tasks");
                 });
 
-            modelBuilder.Entity("server.Models.Project", b =>
-                {
-                    b.Navigation("Tasks");
-                });
-
             modelBuilder.Entity("server.Models.Task", b =>
                 {
+                    b.Navigation("Notes");
+
                     b.Navigation("Recurring");
 
                     b.Navigation("Subtasks");
@@ -326,8 +312,6 @@ namespace server.Migrations
             modelBuilder.Entity("server.Models.User", b =>
                 {
                     b.Navigation("Labels");
-
-                    b.Navigation("Projects");
 
                     b.Navigation("Tasks");
                 });

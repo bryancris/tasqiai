@@ -60,37 +60,33 @@ function AuthForm({ variant }: AuthFormProps) {
   ) => {
     try {
       setIsLoading(true);
-
       if (variant === 'login') {
         const { email, password } = data as LoginFormValues;
         await signIn('credentials', {
           email,
           password,
+          redirect: true,
           callbackUrl: DEFAULT_LOGIN_REDIRECT,
         });
       } else if (variant === 'register') {
         const { email, name, password } = data as RegisterFormValues;
         await registerUser({ email, name, password });
-        toast.success('Successfully registered. You can now log in.');
+        await signIn('credentials', {
+          email,
+          password,
+          redirect: true,
+          callbackUrl: DEFAULT_LOGIN_REDIRECT,
+        });
       }
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        toast.error(err.response?.data);
-      } else if (err instanceof Error) {
-        toast.error(err.message);
-      } else {
-        toast.error('Oops. Something went wrong.');
-      }
-      // eslint-disable-next-line no-console
-      console.log(err);
-    } finally {
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Something went wrong.');
       setIsLoading(false);
     }
   };
 
   return (
     <Form {...form}>
-      <form className="space-y-4 max-w-sm w-full mx-auto">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-w-sm w-full mx-auto">
         <FormField
           control={form.control}
           name="email"
@@ -152,9 +148,8 @@ function AuthForm({ variant }: AuthFormProps) {
           type="submit"
           className="w-full"
           loading={isLoading}
-          disabled={isLoading || variant === 'register'}
+          disabled={isLoading}
           variant="default"
-          onClick={form.handleSubmit(onSubmit)}
         >
           {variant === 'login' ? 'Login' : 'Register'}
         </Button>

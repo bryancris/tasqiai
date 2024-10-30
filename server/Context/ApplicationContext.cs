@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using server.Models;
-using Npgsql.EntityFrameworkCore;
 
 namespace server.Context
 {
@@ -14,13 +13,7 @@ namespace server.Context
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json")
-                .Build();
-
-            var connectionString = configuration.GetConnectionString("DefaultConnection");
-            optionsBuilder.UseNpgsql(connectionString);
+            // Configuration is handled in Program.cs
         }
 
         public DbSet<server.Models.Task>? Tasks { get; set; }

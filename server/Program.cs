@@ -36,8 +36,8 @@ namespace server
                     {
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8
-                            .GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET") ?? 
-                            builder.Configuration.GetSection("AppSettings:Token").Value)),                        ValidateIssuer = false,
+                            .GetBytes(builder.Configuration.GetSection("AppSettings:Token").Value)),
+                        ValidateIssuer = false,
                         ValidateAudience = false
                     };
                 });
@@ -61,14 +61,18 @@ namespace server
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy",
-                    builder =>
+                    policy =>
                     {
-                        builder.SetIsOriginAllowed(_ => true)
-                            .AllowAnyMethod()
-                            .AllowAnyHeader()
-                            .AllowCredentials();
-                    });
+                        policy.WithOrigins("https://tasqiai.vercel.app", "http://localhost:3000")
+                              .AllowAnyMethod()
+                              .AllowAnyHeader()
+                              .AllowCredentials()
+                              .WithExposedHeaders("WWW-Authenticate", "Authorization");
+                    }
+                );
             });
+
+            builder.Services.AddHttpClient();
 
             var app = builder.Build();
 
@@ -85,11 +89,13 @@ namespace server
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
+            
+            app.UseCors("CorsPolicy");
+            app.UseRouting();
+            app.UseExceptionHandler("/error");
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseCors("CorsPolicy");
             app.MapControllers();
 
             app.Run();

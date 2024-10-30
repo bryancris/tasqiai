@@ -1,3 +1,4 @@
+﻿using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +14,7 @@ using System.Text;
 
 namespace server.Controllers
 {
-    [Route("api")]
+    [Route("auth")]
     [ApiController]
     public class AuthController : ControllerBase
     {
@@ -66,33 +67,73 @@ namespace server.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<User>> Register(UserDto req)
         {
-            if (req.Email == null || req.Name == null || req.Password == null)
+            Console.WriteLine("Registration attempt started");
+            try
             {
-                return BadRequest("Missing fields.");
+                if (req.Email == null || req.Name == null || req.Password == null)
+                {
+                    Console.WriteLine("Registration failed: Missing required fields");
+                    return BadRequest(new { error = "Missing required fields: email, name, and password are required." });
+                }
+
+                if (string.IsNullOrWhiteSpace(req.Email) || string.IsNullOrWhiteSpace(req.Name) || string.IsNullOrWhiteSpace(req.Password))
+                {
+                    Console.WriteLine("Registration failed: Empty fields");
+                    return BadRequest(new { error = "Fields cannot be empty." });
+                }
+
+                if (req.Password.Length < 6)
+                {
+                    Console.WriteLine("Registration failed: Password too short");
+                    return BadRequest(new { error = "Password must be at least 6 characters long." });
+                }
+
+                var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == req.Email);
+                if (existingUser != null)
+                {
+                    Console.WriteLine($"Registration failed: Email {req.Email} already exists");
+                    return BadRequest(new { error = "Email is already registered." });
+                }
+
+                Console.WriteLine("Creating new user");
+                User user = new User
+                {
+                    Id = Guid.NewGuid(),
+                    Email = req.Email,
+                    Name = req.Name
+                };
+
+                _auth.CreatePasswordHash(req.Password, out byte[] passwordHash, out byte[] passwordSalt);
+
+                user.PasswordSalt = passwordSalt;
+                user.PasswordHash = passwordHash;
+
+                _context.Users.Add(user);
+                try
+                {
+                    await _context.SaveChangesAsync();
+                    Console.WriteLine($"User {user.Email} successfully registered");
+                    return Ok(new { message = "Registration successful" });
+                }
+                catch (DbUpdateException ex)
+                {
+                    Console.WriteLine($"Database error during registration: {ex.InnerException?.Message ?? ex.Message}");
+                    if (ex.InnerException != null)
+                    {
+                        Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                    }
+                    return StatusCode(500, new { error = "Database error occurred while saving user." });
+                }
             }
-
-            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == req.Email);
-            if (existingUser != null)
+            catch (Exception ex)
             {
-                return BadRequest("Email already exists.");
+                Console.WriteLine($"Unexpected error during registration: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
+                return StatusCode(500, new { error = "An unexpected error occurred during registration." });
             }
-
-            User user = new User
-            {
-                Id = Guid.NewGuid(),
-                Email = req.Email,
-                Name = req.Name
-            };
-
-            _auth.CreatePasswordHash(req.Password, out byte[] passwordHash, out byte[] passwordSalt);
-
-            user.PasswordSalt = passwordSalt;
-            user.PasswordHash = passwordHash;
-
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-
-            return user;
         }
 
         [HttpGet("validate-token")]
