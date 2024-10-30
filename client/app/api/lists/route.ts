@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     const order = lastList ? lastList.order : 1;
     const list = await db.list.create({
       data: {
-        userId: session.user.id,
+        userId: session.user.id as string,
         name,
         order,
       },

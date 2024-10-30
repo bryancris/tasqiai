@@ -9,7 +9,7 @@ import { addDays, format, formatDistance, isBefore } from 'date-fns';
 import { useRouter } from 'next/navigation';
 
 import { Icons } from '@/components/ui/icons';
-import { Separator } from '@/components/ui/seperator';
+import { Separator } from '@/components/ui/separator';
 import {
   Popover,
   PopoverContent,

@@ -18,10 +18,10 @@ import { ListPicker } from '@/components/list-picker';
 import { PriorityPicker } from '@/components/priority-picker';
 import { DatePicker } from '@/components/date-picker';
 import { Form } from '@/components/ui/form';
-import { Separator } from '@/components/ui/seperator';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/ui/icons';
+import { Separator } from '@/components/ui/separator';
 
 interface TaskFormProps {
   task?: Task;

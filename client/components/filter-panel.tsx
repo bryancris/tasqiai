@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { Separator } from '@/components/ui/seperator';
+import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Icons } from '@/components/ui/icons';
 import { Button } from '@/components/ui/button';

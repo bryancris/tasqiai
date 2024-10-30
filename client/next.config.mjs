@@ -12,8 +12,13 @@ const withMDX = nextMDX({
 const nextConfig = {
   pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
   output: 'standalone',
+  webpack: (config) => {
+    config.externals = [...config.externals, 'bcryptjs'];
+    return config;
+  },
   experimental: {
     mdxRs: true,
+    serverComponentsExternalPackages: ['@prisma/client', 'bcryptjs'],
   },
   images: {
     remotePatterns: [

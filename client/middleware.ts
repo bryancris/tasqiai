@@ -7,34 +7,49 @@ import {
   authRoutes,
 } from './routes';
 
-const { auth } = NextAuth(authConfig);
+const auth = NextAuth(authConfig);
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/react';
+import { GetServerSidePropsContext } from 'next';
+import { NextApiRequest, NextApiResponse } from 'next';
+import { NextAuthRequest, NextAuthResponse } from 'next-auth';
+import { NextApiHandler } from 'next';
+import { NextAuthOptions } from 'next-auth';
+import type { Session } from 'next-auth';
 
-export default auth((req) => {
-  const { nextUrl } = req;
-  const isLoggedIn = !!req.auth;
-  const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
-  const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
+export const authHandler = async (
+  req: NextAuthRequest,
+  res: NextAuthResponse
+) => {
+  const session = await getServerSession(req as any, res as any, authConfig);
+  if (!session || !session.user) {
+    return res.status(401).end();
+  }
+
+  const nextUrl = new URL(req.url || '');
+  const isApiAuthRoute = nextUrl?.pathname?.startsWith(apiAuthPrefix);
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
+  const isLoggedIn = !!session;
 
-  if (isApiAuthRoute) {
-    return null;
+  if (isApiAuthRoute || !nextUrl?.pathname) {
+    return NextResponse.next();
   }
 
   if (isAuthRoute) {
     if (isLoggedIn) {
-      return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
     }
-    return null;
+    return NextResponse.next();
   }
 
-  if (!isLoggedIn && !isPublicRoute) {
-    return Response.redirect(new URL('/auth/login', nextUrl));
+  if (!isLoggedIn && !publicRoutes.includes(nextUrl.pathname || '')) {
+    return NextResponse.redirect(new URL(DEFAULT_LOGIN_REDIRECT, req.url));
   }
 
-  return null;
-});
-
-// Optionally, don't invoke Middleware on some paths
-export const config = {
-  matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
+  return NextResponse.next();
 };
+
+export const config = {
+  matcher: ['/((?!.+".[\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
+};
+
+export default authHandler as NextApiHandler;
