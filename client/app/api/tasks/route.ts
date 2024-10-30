@@ -58,7 +58,7 @@ export async function POST(req: Request) {
 
     const list = await db.task.create({
       data: {
-        userId: session.user.id,
+        userId: session.user.id as string,
         name,
         listId,
         description,

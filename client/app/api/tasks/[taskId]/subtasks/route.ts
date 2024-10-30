@@ -28,7 +28,7 @@ export async function POST(
     const order = lastSubtask ? lastSubtask.order : 1;
     const list = await db.subtask.create({
       data: {
-        userId: session.user.id,
+        userId: session.user.id as string,
         taskId: params.taskId,
         name,
         order,

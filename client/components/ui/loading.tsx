@@ -3,7 +3,7 @@ import _uniqueId from 'lodash/uniqueId';
 
 import { Skeleton } from '@/components/ui/skeleton';
 import { Icons } from '@/components/ui/icons';
-import { Separator } from '@/components/ui/seperator';
+import { Separator } from '@/components/ui/separator';
 import { BoardContainer } from '@/components/ui/container';
 import { PageList } from '@/components/ui/page';
 import { cn } from '@/lib/util/tw-merge';

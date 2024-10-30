@@ -9,7 +9,7 @@ import SpeechRecognition, {
 } from 'react-speech-recognition';
 import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/seperator';
+import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { PromptTask, sendPrompt } from '@/lib/util/open-ai';
 import TaskSuggestion, { taskSuggestions } from '@/components/task-suggestion';
