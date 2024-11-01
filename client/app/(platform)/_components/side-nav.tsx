@@ -7,7 +7,7 @@ import useSWR from 'swr';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Icons } from '@/components/ui/icons';
 import { ToggleTheme } from './toggle-theme';
-import { Separator } from '@/components/ui/separator';
+import { Separator } from '@/components/ui/seperator';
 import {
   Tooltip,
   TooltipContent,

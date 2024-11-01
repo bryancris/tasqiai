@@ -1,4 +1,10 @@
-import axios from 'axios';
+'use server';
+
+import bcrypt from 'bcryptjs';
+
+import { redirect } from 'next/navigation';
+import { db } from '@/lib/db';
+import { getUserByEmail } from '@/actions/get-user';
 
 interface UserDetails {
   name: string;
@@ -7,28 +13,25 @@ interface UserDetails {
 }
 
 export const registerUser = async ({ name, email, password }: UserDetails) => {
+  const hashedPassword = await bcrypt.hash(password, 10);
+
   if (!name || !email || !password) {
-    throw new Error('Missing required fields');
+    throw new Error('Missing fields.');
   }
 
-  try {
-    const response = await axios.post('/api/register', {
+  const existingEmail = await getUserByEmail(email);
+
+  if (existingEmail) {
+    throw new Error('Email already exists.');
+  }
+
+  await db.user.create({
+    data: {
       name,
       email,
-      password
-    }, {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      validateStatus: status => status < 500
-    });
+      password: hashedPassword,
+    },
+  });
 
-    if (response.status !== 200) {
-      throw new Error(response.data.error || 'Registration failed');
-    }
-
-    return response.data;
-  } catch (error: any) {
-    throw new Error(error.message || 'Registration failed');
-  }
+  return redirect('/login');
 };

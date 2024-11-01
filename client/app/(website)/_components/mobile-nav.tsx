@@ -7,11 +7,12 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Icons } from '@/components/ui/icons';
 import { Button } from '@/components/ui/button';
 import AuthNavigation from './auth-nav';
+import NavbarLink from './navbar-link';
 
 import { useMounted } from '@/hooks/use-mounted';
 import { config } from '@/lib/config';
 import { cn } from '@/lib/util/tw-merge';
-import { Separator } from '@/components/ui/separator';
+import { Separator } from '@/components/ui/seperator';
 
 export default function MobileNav({
   isAuthenticated,

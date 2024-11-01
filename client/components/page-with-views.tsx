@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import { ExtendedSearchParamsOptions } from '@/lib/util/filter';
 import { TaskList } from './task-list';
-import { Separator } from '@/components/ui/separator';
+import { Separator } from '@/components/ui/seperator';
 import {
   PageList,
   PageBoard,

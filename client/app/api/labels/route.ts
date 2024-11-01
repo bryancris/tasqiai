@@ -32,7 +32,7 @@ export async function POST(req: Request) {
 
     const label = await db.label.create({
       data: {
-        userId: session.user.id as string,
+        userId: session.user.id,
         name,
         color,
       },

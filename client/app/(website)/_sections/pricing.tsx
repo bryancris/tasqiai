@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { Separator } from '@/components/ui/separator';
+import { Separator } from '@/components/ui/seperator';
 import { Icons } from '@/components/ui/icons';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
