@@ -13,6 +13,8 @@ env:
 
 permissions:
   contents: read
+  id-token: write
+  actions: write
 
 jobs:
   build:
@@ -46,6 +48,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
+      actions: write
     runs-on: windows-latest
     needs: build
     environment:
@@ -56,12 +59,14 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Azure login
-        uses: azure/login@v2
+        uses: azure/login@v1
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          enable-AzPSSession: true
+          client-id: "419a70bb-ea67-4b96-b13c-08b786369a12"
+          tenant-id: "62e7d9a3-68f3-4180-a310-8349c3e8ed1d"
+          subscription-id: "35415108-b478-455e-8952-ee7b9c7af8b3"
+          use-oidc: true
+          audience: "api://AzureADTokenExchange"
+          subject: "repo:bryancris/tasqiai:ref:refs/heads/main"
 
       - name: Download artifact from build job
         uses: actions/download-artifact@v3
