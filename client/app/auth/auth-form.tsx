@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import toast from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
 
 import { signIn } from 'next-auth/react';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -70,7 +70,14 @@ function AuthForm({ variant }: AuthFormProps) {
         });
       } else if (variant === 'register') {
         const { email, name, password } = data as RegisterFormValues;
-        await registerUser({ email, name, password });
+        const result = await registerUser({ email, name, password });
+        
+        if (result instanceof Error) {
+          throw result;
+        }
+        
+        await signIn('credentials', { email, password, callbackUrl: DEFAULT_LOGIN_REDIRECT });
+        
         toast.success('Successfully registered. You can now log in.');
       }
     } catch (err) {
@@ -90,7 +97,7 @@ function AuthForm({ variant }: AuthFormProps) {
 
   return (
     <Form {...form}>
-      <form className="space-y-4 max-w-sm w-full mx-auto">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-w-sm w-full mx-auto">
         <FormField
           control={form.control}
           name="email"
@@ -152,9 +159,8 @@ function AuthForm({ variant }: AuthFormProps) {
           type="submit"
           className="w-full"
           loading={isLoading}
-          disabled={isLoading || variant === 'register'}
+          disabled={isLoading}
           variant="default"
-          onClick={form.handleSubmit(onSubmit)}
         >
           {variant === 'login' ? 'Login' : 'Register'}
         </Button>
