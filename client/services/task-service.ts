@@ -12,7 +12,11 @@ interface TaskLabelRelation {
 export const TaskService = {
   createTask: async (task: TaskEntry) => {
     try {
-      const response: AxiosResponse<Task> = await api.post('/tasks', task);
+      const response: AxiosResponse<Task> = await api.post('/api/tasks', task, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
       return response.data;
     } catch (err) {
       throw err;
@@ -38,7 +42,7 @@ export const TaskService = {
         }
       }
 
-      const response: AxiosResponse = await api.get('/tasks', {
+      const response: AxiosResponse = await api.get('/api/tasks', {
         params: queryParams,
       });
 
@@ -49,7 +53,7 @@ export const TaskService = {
   },
   getTask: async (taskId: string): Promise<Task> => {
     try {
-      const response: AxiosResponse = await api.get(`/tasks/${taskId}`);
+      const response: AxiosResponse = await api.get(`/api/tasks/${taskId}`);
       return response.data;
     } catch (err) {
       throw err;
@@ -57,9 +61,14 @@ export const TaskService = {
   },
   updateTask: async (taskId: string, updatedTask: TaskEntry): Promise<Task> => {
     try {
-      const response: AxiosResponse = await api.patch(
-        `/tasks/${taskId}`,
+      const response: AxiosResponse = await api.put(
+        `/api/tasks/${taskId}`,
         updatedTask,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
       );
       return response.data;
     } catch (err) {
@@ -68,7 +77,7 @@ export const TaskService = {
   },
   deleteTask: async (taskId: string): Promise<Task> => {
     try {
-      const response: AxiosResponse = await api.delete(`/tasks/${taskId}`);
+      const response: AxiosResponse = await api.delete(`/api/tasks/${taskId}`);
       return response.data;
     } catch (err) {
       throw err;
@@ -77,7 +86,7 @@ export const TaskService = {
   addLabel: async ({ taskId, labelId }: TaskLabelRelation): Promise<void> => {
     try {
       const response: AxiosResponse = await api.post(
-        `/tasks/${taskId}/labels/${labelId}`,
+        `/api/tasks/${taskId}/labels/${labelId}`,
         null,
       );
       return response.data;
@@ -91,7 +100,7 @@ export const TaskService = {
   }: TaskLabelRelation): Promise<void> => {
     try {
       const response: AxiosResponse = await api.delete(
-        `/tasks/${taskId}/labels/${labelId}`,
+        `/api/tasks/${taskId}/labels/${labelId}`,
       );
       return response.data;
     } catch (err) {

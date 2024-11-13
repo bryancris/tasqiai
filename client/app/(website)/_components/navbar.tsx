@@ -16,7 +16,7 @@ export default async function Navbar() {
       <div className="px-6 py-2 max-w-screen-lg mx-auto flex justify-between items-center w-full">
         <div className="flex-1 flex-gap gap-6 justify-between">
           <Link href="/" aria-current="page" className="font-bold">
-            Taskify
+            TasqiAI
           </Link>
           <ul className="flex-gap gap-6 flex-1 hidden sm:flex">
             {config.marketing.links.map((link) => (

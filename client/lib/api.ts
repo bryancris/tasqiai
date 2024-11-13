@@ -12,8 +12,49 @@ export const LISTS_KEY = '/api/lists';
 export const LABELS_KEY = '/api/labels';
 
 export const api: AxiosInstance = axios.create({
-  baseURL:
-    process.env.NODE_ENV === 'production'
-      ? process.env.PUBLIC_URL
-      : process.env.DEV_URL,
+  baseURL: '',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  },
+  withCredentials: true,
 });
+
+// Add request interceptor to handle authentication and CSRF
+api.interceptors.request.use(async (config) => {
+  // Get CSRF token from cookie
+  const csrfToken = document.cookie
+    .split('; ')
+    .find((row) => row.startsWith('__Host-authjs.csrf-token='))
+    ?.split('=')[1];
+
+  if (csrfToken) {
+    config.headers['csrf-token'] = csrfToken;
+  }
+
+  // Get session token from cookie
+  const sessionToken = document.cookie
+    .split('; ')
+    .find((row) => row.startsWith('__Secure-authjs.session-token='))
+    ?.split('=')[1];
+
+  if (sessionToken) {
+    config.headers['Authorization'] = `Bearer ${sessionToken}`;
+  }
+
+  return config;
+});
+
+// Add response interceptor to handle errors
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 405) {
+      console.error('Method not allowed. Check API route configuration:', {
+        method: error.config?.method,
+        url: error.config?.url,
+      });
+    }
+    return Promise.reject(error);
+  }
+);
