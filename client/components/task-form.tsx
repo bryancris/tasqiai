@@ -146,7 +146,7 @@ export default function TaskForm({
     } catch (err) {
       handleError(err);
     } finally {
-      setIsLoading(true);
+      setIsLoading(false);
     }
   };
 

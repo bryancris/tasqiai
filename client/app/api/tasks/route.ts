@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     const { name, listId, description, dueDate, priority } = await req.json();
 
     if (!name) {
-      return new NextResponse('Bad Request', { status: 401 });
+      return new NextResponse('Bad Request', { status: 400 });
     }
 
     let lastTask;

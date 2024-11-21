@@ -16,8 +16,14 @@ export default auth((req) => {
   const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
 
+  // Only skip auth check for actual auth routes like /api/auth/...
   if (isApiAuthRoute) {
     return null;
+  }
+
+  // For all other API routes, require authentication
+  if (nextUrl.pathname.startsWith('/api/') && !isLoggedIn) {
+    return new NextResponse('Unauthorized', { status: 401 });
   }
 
   if (isAuthRoute) {

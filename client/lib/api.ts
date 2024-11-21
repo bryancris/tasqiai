@@ -23,23 +23,10 @@ export const api: AxiosInstance = axios.create({
 // Add request interceptor to handle authentication and CSRF
 api.interceptors.request.use(async (config) => {
   // Get CSRF token from cookie
-  const csrfToken = document.cookie
-    .split('; ')
-    .find((row) => row.startsWith('__Host-authjs.csrf-token='))
-    ?.split('=')[1];
+  const csrfToken = document.cookie.split('; ').find((row) => row.startsWith('next-auth.csrf-token='))?.split('=')[1];
 
   if (csrfToken) {
     config.headers['csrf-token'] = csrfToken;
-  }
-
-  // Get session token from cookie
-  const sessionToken = document.cookie
-    .split('; ')
-    .find((row) => row.startsWith('__Secure-authjs.session-token='))
-    ?.split('=')[1];
-
-  if (sessionToken) {
-    config.headers['Authorization'] = `Bearer ${sessionToken}`;
   }
 
   return config;
